@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stendahl &mdash; Known Sites &amp; Absent Records</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inconsolata:wght@300;400&family=Nunito:wght@400;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f7ece2; color: #1c1510; font-family: 'EB Garamond', Georgia, serif; padding: 1.8rem; }
+  header { max-width: 1400px; margin: 0 auto 1.4rem; border-bottom: 1px solid #d4c9b8; padding-bottom: 0.9rem; }
+  h1 { font-size: 1.35rem; font-weight: 500; margin-bottom: 0.25rem; }
+  .sub { font-family: 'Inconsolata', monospace; font-size: 0.75rem; color: #7a6a58; font-style: italic; }
+  .layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 220px; gap: 1.8rem; align-items: start; }
+  #map-wrap { position: relative; overflow: hidden; }
+  svg#map { width: 100%; height: auto; min-height: 400px; display: block; }
+  .land       { fill: #c8c8c8; stroke: none; }
+  .land-focus { stroke: #00251a; stroke-width: 0.8; cursor: pointer; transition: opacity 0.12s; }
+  .land-focus:hover { opacity: 0.78; }
+  .border     { fill: none; stroke: #60a090; stroke-width: 0.7; }
+  .locale-dot { fill: #b71c1c; fill-opacity: 0.78; stroke: #ede8de; stroke-width: 0.8; cursor: pointer; }
+  .locale-dot:hover { fill-opacity: 1; stroke-width: 1.2; }
+  .uncertain-dot { fill: #f472b6; fill-opacity: 0.6; stroke: none; cursor: pointer; }
+  .tooltip { position: absolute; background: #1c1510; color: #f0ebe0; padding: 0.65rem 0.85rem;
+    font-family: 'Inconsolata', monospace; font-size: 0.74rem; line-height: 1.65;
+    pointer-events: none; opacity: 0; transition: opacity 0.1s; max-width: 230px; z-index: 20; }
+  .tooltip.on { opacity: 1; }
+  .tt-name { font-family: 'EB Garamond', serif; font-size: 0.92rem; font-weight: 500;
+    border-bottom: 1px solid rgba(240,235,224,0.2); padding-bottom: 0.2rem; margin-bottom: 0.25rem; }
+  .tt-dim { color: #998878; }
+  .sidebar { position: sticky; top: 1.5rem; font-family: 'Nunito', sans-serif; }
+  .leg-title { font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: none; margin-bottom: 0.25rem; }
+  .leg-block { margin-bottom: 1.5rem; }
+  .grad-bar { width: 100%; height: 12px; border-radius: 2px; margin-bottom: 0.3rem; }
+  .grad-labels { display: flex; justify-content: space-between; font-family: 'Nunito', sans-serif; font-size: 0.68rem; color: #7a6a58; }
+  .dot-note { font-family: 'Nunito', sans-serif; font-size: 0.8rem; color: #b71c1c; line-height: 1.4; margin-bottom: 0.5rem; }
+  .dot-note-pink { font-family: 'Nunito', sans-serif; font-size: 0.8rem; color: #9d174d; line-height: 1.4; margin-bottom: 0.5rem; }
+  .size-row { display: flex; align-items: flex-end; gap: 8px; }
+  .size-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .size-circ { border-radius: 50%; flex-shrink: 0; }
+  .size-lbl-red  { font-family: 'Nunito', sans-serif; font-size: 0.66rem; color: #b71c1c; text-align: center; }
+  .size-lbl-pink { font-family: 'Nunito', sans-serif; font-size: 0.66rem; color: #9d174d; text-align: center; }
+  hr.div { border: none; border-top: 1px solid #d4c9b8; margin: 1.1rem 0; }
+  .stat-row { display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: 'Nunito', sans-serif; font-size: 0.73rem;
+    padding: 0.2rem 0; border-bottom: 1px solid #e0d8cc; color: #2a1c10; }
+  .stat-row:last-child { border-bottom: none; }
+  .sd { color: #7a6a58; }
+  .sd-red  { color: #b71c1c; }
+  .sd-pink { color: #9d174d; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Known Sites &amp; Absent Records &mdash; Stendahl Art Galleries Inventory Books</h1>
+  <p class="sub">Mesoamerica &amp; Central America &middot; locale-level provenience &middot; 12,513 in-region records &middot; scroll to zoom</p>
+</header>
+
+<div class="layout">
+  <div id="map-wrap">
+    <svg id="map" viewBox="0 0 960 660"></svg>
+    <div class="tooltip" id="tt"></div>
+  </div>
+
+  <div class="sidebar">
+
+    <div class="leg-block">
+      <div class="leg-title">% records missing locale</div>
+      <canvas id="grad-canvas" class="grad-bar" width="200" height="12"></canvas>
+      <div class="grad-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+    </div>
+
+    <hr class="div">
+
+    <div class="leg-block">
+      <div class="leg-title" style="color:#b71c1c">Known locale (site)</div>
+      <p class="dot-note">&rarr; Genuine named sites with locale data recorded.<br>&rarr; Size = record count.</p>
+      <div class="size-row" id="dot-sizes"></div>
+    </div>
+
+    <div class="leg-block">
+      <div class="leg-title" style="color:#9d174d">Approximate locale (site)</div>
+      <p class="dot-note-pink">&rarr; Flag terms: "region", "area", "near", "possibly", "probably", "?"<br>&rarr; Plotted at parent location.</p>
+      <div class="size-row" id="uncertain-sizes"></div>
+    </div>
+
+    <hr class="div">
+
+    <div class="leg-title">Dataset totals</div>
+    <div class="stat-row" style="display:block">
+      <div style="display:flex;justify-content:space-between"><span class="sd" style="font-weight:700">In-region records</span><span>12,513</span></div>
+      <div style="font-size:0.65rem;color:#7a6a58">Belize, Colombia, Costa Rica, Ecuador, El Salvador, Guatemala, Honduras, Mexico, Nicaragua, Panama, Peru</div>
+    </div>
+    <div class="stat-row"><span class="sd-red" style="font-weight:700">Locale known</span><span style="color:#b71c1c">3,993 &nbsp;(31.9%)</span></div>
+    <div class="stat-row"><span class="sd-pink" style="font-weight:700">Locale ambiguous</span><span style="color:#9d174d">161 &nbsp;&nbsp;&nbsp;(1.3%)</span></div>
+    <div class="stat-row"><span class="sd" style="font-weight:700">Locale absent</span><span>8,358 &nbsp;(66.8%)</span></div>
+    <hr style="border:none;border-top:1px solid #d4c9b8;margin:0.6rem 0;">
+    <div class="stat-row"><span class="sd" style="font-weight:700">Full dataset</span><span>16,725</span></div>
+    <div class="stat-row"><span class="sd" style="font-weight:700">Unlocated</span><span>3,864</span></div>
+    <div class="stat-row" style="display:block">
+      <div style="display:flex;justify-content:space-between"><span class="sd" style="font-weight:700">Out-of-region records</span><span>65</span></div>
+      <div style="font-size:0.65rem;color:#7a6a58">Egypt, West Asia-North Africa, East Asia, New Guinea, Africa, Papua New Guinea, Congo, Gabon, Ivory Coast, Indo-Pacific, New Caledonia, Liberia, US, French Polynesia, Cambodia</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const ABSENCE = {
+  "484": {
+    "name": "Mexico",
+    "total": 9441,
+    "missing": 6642,
+    "pct": 70.4
+  },
+  "188": {
+    "name": "Costa Rica",
+    "total": 2129,
+    "missing": 1136,
+    "pct": 53.4
+  },
+  "591": {
+    "name": "Panama",
+    "total": 552,
+    "missing": 483,
+    "pct": 87.5
+  },
+  "320": {
+    "name": "Guatemala",
+    "total": 132,
+    "missing": 85,
+    "pct": 64.4
+  },
+  "170": {
+    "name": "Colombia",
+    "total": 79,
+    "missing": 26,
+    "pct": 32.9
+  },
+  "218": {
+    "name": "Ecuador",
+    "total": 29,
+    "missing": 16,
+    "pct": 55.2
+  },
+  "604": {
+    "name": "Peru",
+    "total": 88,
+    "missing": 76,
+    "pct": 86.4
+  },
+  "340": {
+    "name": "Honduras",
+    "total": 45,
+    "missing": 45,
+    "pct": 100.0
+  },
+  "222": {
+    "name": "El Salvador",
+    "total": 9,
+    "missing": 8,
+    "pct": 88.9
+  },
+  "558": {
+    "name": "Nicaragua",
+    "total": 8,
+    "missing": 2,
+    "pct": 25.0
+  },
+  "084": {
+    "name": "Belize",
+    "total": 1,
+    "missing": 1,
+    "pct": 100.0
+  }
+};
+const LOCALE    = [{"name":"Filadelfia","country":"Costa Rica","lat":10.4189826,"lon":-85.4714091,"count":612},{"name":"Jaina Island","country":"Mexico","lat":20.208611111111,"lon":-90.484166666667,"count":498},{"name":"Ixtl\u00e1n del R\u00edo","country":"Mexico","lat":21.03972222,"lon":-104.34472222,"count":308},{"name":"Chup\u00edcuaro","country":"Mexico","lat":20.02222222,"lon":-100.59138889,"count":251},{"name":"Uaymil","country":"Mexico","lat":20.4549,"lon":-90.4775,"count":143},{"name":"Jomulco","country":"Mexico","lat":21.10281527777778,"lon":-104.42524416666667,"count":140},{"name":"Teotihuacan","country":"Mexico","lat":19.6925,"lon":-98.843888888889,"count":111},{"name":"Buenos Aires","country":"Costa Rica","lat":9.1666,"lon":-83.3333,"count":98},{"name":"Gu\u00e1piles","country":"Costa Rica","lat":10.214102,"lon":-83.7918094,"count":90},{"name":"Buenavista","country":"Mexico","lat":19.1,"lon":-103.9,"count":81},{"name":"Cholula","country":"Mexico","lat":19.06,"lon":-98.31,"count":76},{"name":"Santiago Ahuizotla","country":"Mexico","lat":19.47868611111111,"lon":-99.21161666666667,"count":76},{"name":"Etzatl\u00e1n","country":"Mexico","lat":20.5833,"lon":-103.75,"count":73},{"name":"Mexico City","country":"Mexico","lat":19.353773,"lon":-99.13589,"count":58},{"name":"Tula","country":"Mexico","lat":20.056388888889,"lon":-99.341944444444,"count":57},{"name":"Papantla","country":"Mexico","lat":20.446666666667,"lon":-97.325,"count":53},{"name":"R\u00edo Calima","country":"Colombia","lat":4.16047,"lon":-77.14332,"count":50},{"name":"Remojadas","country":"Mexico","lat":18.98333333,"lon":-96.31666667,"count":47},{"name":"Santa Cruz","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":46},{"name":"Chalco","country":"Mexico","lat":19.26666667,"lon":-98.9,"count":45},{"name":"Tierra Blanca","country":"Mexico","lat":21.101111111111,"lon":-100.15777777778,"count":40},{"name":"Orizaba","country":"Mexico","lat":18.85,"lon":-97.1,"count":37},{"name":"Son\u00e1 District","country":"Panama","lat":8.0166666666667,"lon":-81.316666666667,"count":29},{"name":"San Rafael, V\u00e1zquez de Coronado","country":"Costa Rica","lat":9.9779849,"lon":-83.9542361,"count":26},{"name":"El Quetzal","country":"Guatemala","lat":15.03,"lon":-91.15,"count":18},{"name":"Sitio Conte","country":"Panama","lat":8.3724,"lon":-80.4818,"count":18},{"name":"San Pablo River, Son\u00e1 District","country":"Panama","lat":7.8541666666667,"lon":-81.172777777778,"count":17},{"name":"Nautla","country":"Mexico","lat":20.206661111111,"lon":-96.772922222222,"count":17},{"name":"Nopiloa","country":"Mexico","lat":18.61389,"lon":-96.22194,"count":16},{"name":"Chapala","country":"Mexico","lat":20.298055555555557,"lon":-103.19027777777778,"count":15},{"name":"Texcoco","country":"Mexico","lat":19.5294444444,"lon":-98.8966666667,"count":15},{"name":"Autl\u00e1n","country":"Mexico","lat":19.77138888888889,"lon":-104.36527777777778,"count":14},{"name":"Nebaj","country":"Guatemala","lat":15.40833333,"lon":-91.14722222,"count":14},{"name":"Monte Alb\u00e1n","country":"Mexico","lat":17.043888888889,"lon":-96.767777777778,"count":14},{"name":"Ica Valley","country":"Peru","lat":-14.0667,"lon":-75.7286,"count":12},{"name":"Ica Valley","country":"Peru","lat":-14.066666666667,"lon":-75.733333333333,"count":12},{"name":"Dicha Tuerta","country":"Mexico","lat":19.52722222222222,"lon":-96.9225,"count":11},{"name":"San Carlos","country":"Costa Rica","lat":10.465277777777779,"lon":-84.46055555555556,"count":10},{"name":"R\u00edo de Jes\u00fas","country":"Costa Rica","lat":8.0,"lon":-81.0,"count":10},{"name":"Azcapotzalco","country":"Mexico","lat":19.48731,"lon":-99.18766,"count":9},{"name":"Tonal\u00e1","country":"Mexico","lat":16.091355555555555,"lon":-93.75178333333334,"count":9},{"name":"Magdalena","country":"Mexico","lat":20.906388888888888,"lon":-103.97611111111111,"count":8},{"name":"Temaxcalac","country":"Mexico","lat":19.003611111111,"lon":-97.888333333333,"count":8},{"name":"Nagascolo","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":7},{"name":"Cempoala","country":"Mexico","lat":19.44708333333333,"lon":-96.4041111111111,"count":7},{"name":"San Pablo (formerly Santa Cruz)","country":"Mexico","lat":18.7475,"lon":-99.070277777778,"count":7},{"name":"Bah\u00eda","country":"Ecuador","lat":-0.6,"lon":-80.425,"count":7},{"name":"Sardinal","country":"Costa Rica","lat":10.5343352,"lon":-85.6954664,"count":7},{"name":"Las \u00c1nimas","country":"Mexico","lat":19.1,"lon":-103.9,"count":6},{"name":"Teotitl\u00e1n del Camino","country":"Mexico","lat":18.13225,"lon":-97.07068,"count":6},{"name":"Ometepe Island","country":"Nicaragua","lat":11.5742,"lon":-85.3563,"count":6},{"name":"Zacatl\u00e1n","country":"Mexico","lat":19.93333333,"lon":-97.96055556,"count":6},{"name":"Manta","country":"Ecuador","lat":-0.95002222222222,"lon":-80.7162,"count":6},{"name":"Apaxco","country":"Mexico","lat":19.973333333333,"lon":-99.17,"count":6},{"name":"San Isidro de El General","country":"Costa Rica","lat":9.3403459,"lon":-83.7337922,"count":6},{"name":"Tampico","country":"Mexico","lat":22.255277777778,"lon":-97.868611111111,"count":5},{"name":"Tlalnepantla","country":"Mexico","lat":19.536666666667,"lon":-99.194722222222,"count":4},{"name":"Tenayuca","country":"Mexico","lat":19.53252174813048,"lon":-99.16852474035558,"count":4},{"name":"La Malinche/Matlalcu\u00e9yatl","country":"Mexico","lat":19.4,"lon":-98.1,"count":4},{"name":"P\u00e1nuco","country":"Mexico","lat":22.05,"lon":-98.183333333333,"count":4},{"name":"Coyoac\u00e1n","country":"Mexico","lat":19.35,"lon":-99.16222222222223,"count":4},{"name":"Toluca","country":"Mexico","lat":19.292222222222,"lon":-99.653888888889,"count":4},{"name":"Zamora","country":"Costa Rica","lat":10.465277777777779,"lon":-84.46055555555556,"count":4},{"name":"Ameca","country":"Mexico","lat":20.54861111111111,"lon":-104.04305555555555,"count":4},{"name":"Zacapu","country":"Mexico","lat":19.81861111111111,"lon":-101.7925,"count":4},{"name":"Compostela","country":"Mexico","lat":21.2372,"lon":-104.901,"count":3},{"name":"Cerro del Gallo, El Zapotal","country":"Mexico","lat":21.61111111,"lon":-98.38666667,"count":3},{"name":"San Felipe Teotlalcingo","country":"Mexico","lat":19.230833333333,"lon":-98.500833333333,"count":3},{"name":"Tepic","country":"Mexico","lat":21.5,"lon":-104.9,"count":3},{"name":"Tzintzuntzan","country":"Mexico","lat":19.6236,"lon":-101.574,"count":3},{"name":"El Fais\u00e1n","country":"Mexico","lat":19.31806,"lon":-96.37583,"count":3},{"name":"Huitzo","country":"Mexico","lat":17.27708,"lon":-96.88661,"count":3},{"name":"Sacapulas","country":"Guatemala","lat":15.289166666667,"lon":-91.089166666667,"count":3},{"name":"Potrero","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":3},{"name":"Jiquilpan","country":"Mexico","lat":19.779916666666665,"lon":-103.7775,"count":3},{"name":"Guadalajara","country":"Mexico","lat":20.676388888888887,"lon":-103.34222222222222,"count":3},{"name":"Tlacotalpan","country":"Mexico","lat":18.613025,"lon":-95.65627361111112,"count":3},{"name":"Tenancingo","country":"Mexico","lat":18.9608,"lon":-99.5906,"count":2},{"name":"San Antonio Tlatenco","country":"Mexico","lat":19.172588333333334,"lon":-98.4953225,"count":2},{"name":"Piscila","country":"Mexico","lat":19.15888888888889,"lon":-103.70194444444445,"count":2},{"name":"Silacayo\u00e1pam","country":"Mexico","lat":17.502222222222223,"lon":-98.1438888888889,"count":2},{"name":"Poza Rica","country":"Mexico","lat":20.533333333333,"lon":-97.45,"count":2},{"name":"Taxco","country":"Mexico","lat":18.55462,"lon":-99.60592,"count":2},{"name":"San Isidro de Heredia","country":"Costa Rica","lat":10.0135022,"lon":-84.0526982,"count":2},{"name":"San Luis La Loma","country":"Mexico","lat":17.2714,"lon":-100.891056,"count":2},{"name":"Piedras Negras","country":"Mexico","lat":18.77026,"lon":-96.17178,"count":2},{"name":"Chiautzingo","country":"Mexico","lat":19.2028,"lon":-98.46513,"count":2},{"name":"Acatl\u00e1n de P\u00e9rez Figueroa","country":"Mexico","lat":18.538563333333332,"lon":-96.60761,"count":2},{"name":"Chochol\u00e1","country":"Mexico","lat":20.7508,"lon":-89.8297,"count":2},{"name":"El Oro","country":"Mexico","lat":19.8026,"lon":-100.13062,"count":2},{"name":"El Pital","country":"Mexico","lat":18.54833,"lon":-95.43389,"count":2},{"name":"El Taj\u00edn","country":"Mexico","lat":20.448058333333,"lon":-97.378241666667,"count":2},{"name":"Celaya","country":"Mexico","lat":20.528888888889,"lon":-100.815,"count":2},{"name":"Xico, Valle de Chalco","country":"Mexico","lat":19.270277777778,"lon":-98.950833333333,"count":2},{"name":"Cuauht\u00e9moc","country":"Mexico","lat":19.328774444444445,"lon":-103.60186055555556,"count":2},{"name":"Coatlinchan","country":"Mexico","lat":19.448888888889,"lon":-98.872222222222,"count":2},{"name":"Texmelucan","country":"Mexico","lat":19.284444444444,"lon":-98.438888888889,"count":2},{"name":"Xochiaca","country":"Mexico","lat":19.421230555555557,"lon":-98.94938888888889,"count":2},{"name":"Banderilla Municipality","country":"Mexico","lat":19.5845,"lon":-96.9419,"count":2},{"name":"Joach\u00edn","country":"Mexico","lat":18.637777777778,"lon":-96.235,"count":2},{"name":"La Venta","country":"Mexico","lat":18.10527778,"lon":-94.03166667,"count":2},{"name":"Las Trancas","country":"Mexico","lat":19.1,"lon":-103.9,"count":2},{"name":"Las Tunas","country":"Mexico","lat":18.90842,"lon":-103.55316,"count":2},{"name":"Los Ortices","country":"Mexico","lat":19.1,"lon":-103.9,"count":2},{"name":"Los \u00cddolos","country":"Mexico","lat":19.895,"lon":-96.85861,"count":2},{"name":"Xochipala","country":"Mexico","lat":17.784444444444446,"lon":-99.63305555555556,"count":2},{"name":"Chico","country":"Mexico","lat":20.478333333333,"lon":-98.863611111111,"count":2},{"name":"M\u00e0yap\u00e1an","country":"Mexico","lat":21.0,"lon":-89.6,"count":2},{"name":"Xochitecatl","country":"Mexico","lat":19.24472658477893,"lon":-98.34956225806258,"count":1},{"name":"Tulum","country":"Mexico","lat":20.214722222222,"lon":-87.428888888889,"count":1},{"name":"Santa Mar\u00eda del Tule","country":"Mexico","lat":17.0465,"lon":-96.636277777778,"count":1},{"name":"Xico, Valle de Chalco","country":"Mexico","lat":20.05194444,"lon":-100.36194444,"count":1},{"name":"Villaflores","country":"Mexico","lat":16.235485833333332,"lon":-93.2677075,"count":1},{"name":"Santa Mar\u00eda de Dota","country":"Costa Rica","lat":9.5757477,"lon":-83.9594001,"count":1},{"name":"Uxmal","country":"Mexico","lat":20.359444444444,"lon":-89.771388888889,"count":1},{"name":"Teotitl\u00e1n","country":"Mexico","lat":17.029166666667,"lon":-96.52,"count":1},{"name":"Siquirres","country":"Costa Rica","lat":10.0900655,"lon":-83.5016257,"count":1},{"name":"Tl\u00e1huac","country":"Mexico","lat":19.27436,"lon":-99.00278,"count":1},{"name":"Teotitl\u00e1n de Valle","country":"Mexico","lat":17.029166666667,"lon":-96.52,"count":1},{"name":"Tixtla","country":"Mexico","lat":17.566944444444,"lon":-99.397777777778,"count":1},{"name":"S\u00e1mara","country":"Costa Rica","lat":9.8819359,"lon":-85.5270748,"count":1},{"name":"Talamanca","country":"Costa Rica","lat":9.62083,"lon":-82.84444,"count":1},{"name":"Tapachula","country":"Mexico","lat":14.911071388888889,"lon":-92.26432,"count":1},{"name":"Tecamachalco","country":"Mexico","lat":18.88179,"lon":-97.73132,"count":1},{"name":"Santa Ana Chiautempan","country":"Mexico","lat":19.3114031483731,"lon":-98.18796714724935,"count":1},{"name":"Tecp\u00e1n","country":"Guatemala","lat":14.7667,"lon":-91.0,"count":1},{"name":"Tepeaca","country":"Mexico","lat":18.96923,"lon":-97.90074,"count":1},{"name":"Tepatlaxco de Hidalgo","country":"Mexico","lat":19.077302222222222,"lon":-97.96661694444444,"count":1},{"name":"Tlaxcala","country":"Mexico","lat":19.315144977965634,"lon":-98.23615119856137,"count":1},{"name":"Palma Cuata","country":"Mexico","lat":18.69194,"lon":-96.01778,"count":1},{"name":"Santa Ana (Mata de Ca\u00f1a)","country":"Mexico","lat":18.75139,"lon":-96.1475,"count":1},{"name":"San Sebasti\u00e1n","country":"Mexico","lat":20.676388888888887,"lon":-103.34583333333333,"count":1},{"name":"Iz\u00facar de Matamoros","country":"Mexico","lat":18.602777777778,"lon":-98.465277777778,"count":1},{"name":"Isla de Sacrificios","country":"Mexico","lat":19.1751,"lon":-96.0921,"count":1},{"name":"Isla de Piedras","country":"Mexico","lat":20.3433,"lon":-90.4983,"count":1},{"name":"Iguala de la Independencia","country":"Mexico","lat":18.345,"lon":-99.53833333333333,"count":1},{"name":"Huitziltepec","country":"Mexico","lat":17.75633,"lon":-99.48013,"count":1},{"name":"Huexotla","country":"Mexico","lat":19.4825822,"lon":-98.8862109,"count":1},{"name":"Huejotzingo","country":"Mexico","lat":19.15945,"lon":-98.40734,"count":1},{"name":"Guayabal","country":"El Salvador","lat":13.839669444444445,"lon":-89.09612222222222,"count":1},{"name":"Esc\u00e1rcega","country":"Mexico","lat":18.604314722222224,"lon":-90.73200083333333,"count":1},{"name":"El Manchado","country":"Mexico","lat":19.55556,"lon":-102.81444,"count":1},{"name":"El Embarcadero","country":"Mexico","lat":16.96417,"lon":-100.00167,"count":1},{"name":"El Cocuite","country":"Mexico","lat":18.71,"lon":-95.63389,"count":1},{"name":"El Chanal","country":"Mexico","lat":19.29277778,"lon":-103.70555556,"count":1},{"name":"El Cayo","country":"Mexico","lat":17.059995,"lon":-91.216712,"count":1},{"name":"Cuitl\u00e1huac","country":"Mexico","lat":18.814539444444446,"lon":-96.72232277777778,"count":1},{"name":"Cuautla","country":"Mexico","lat":18.7475,"lon":-99.070277777778,"count":1},{"name":"Cuautitl\u00e1n","country":"Mexico","lat":19.6723,"lon":-99.1697,"count":1},{"name":"Cinco Esquinas","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":1},{"name":"Chichen Itza","country":"Mexico","lat":20.683055555556,"lon":-88.568611111111,"count":1},{"name":"Chama","country":"Guatemala","lat":15.74166,"lon":-90.366282,"count":1},{"name":"Calima","country":"Colombia","lat":3.9311111111111,"lon":-76.486388888889,"count":1},{"name":"Caleras","country":"Mexico","lat":18.99638888888889,"lon":-103.87972222222221,"count":1},{"name":"Aquiles Serd\u00e1n (Tamala)","country":"Mexico","lat":19.00491,"lon":-103.75713,"count":1},{"name":"Las Bocas","country":"Mexico","lat":18.66666667,"lon":-98.31666667,"count":1},{"name":"Manzanillo","country":"Mexico","lat":19.053205833333333,"lon":-104.31638055555555,"count":1},{"name":"Mazatzongo","country":"Mexico","lat":18.286944444444448,"lon":-96.83472222222221,"count":1},{"name":"Quimbaya","country":"Colombia","lat":4.6238888888889,"lon":-75.763055555556,"count":1},{"name":"San Ram\u00f3n","country":"Costa Rica","lat":10.0872322,"lon":-84.469781,"count":1},{"name":"San Rafael Tenanyecac","country":"Mexico","lat":19.14388889,"lon":-98.21555556,"count":1},{"name":"San Juan Tehuixtitl\u00e1n","country":"Mexico","lat":19.054809722222224,"lon":-98.7700375,"count":1},{"name":"San Isidro, V\u00e1zquez de Coronado Canton","country":"Costa Rica","lat":10.0759249,"lon":-83.948042,"count":1},{"name":"San Crist\u00f3bal Tepatlaxco","country":"Mexico","lat":19.314166666666665,"lon":-98.44555555555556,"count":1},{"name":"San Blas","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":1},{"name":"San Andr\u00e9s Tuxtla","country":"Mexico","lat":18.448668333333334,"lon":-95.21257083333333,"count":1},{"name":"Salinas Bay","country":"Costa Rica","lat":10.433333333333,"lon":-85.4,"count":1},{"name":"Rancho San Gabriel","country":"Mexico","lat":19.1,"lon":-103.9,"count":1},{"name":"Rancho Nuevo San Jos\u00e9","country":"Mexico","lat":20.61889,"lon":-97.375,"count":1},{"name":"P\u00e1tzcuaro","country":"Mexico","lat":19.516388888889,"lon":-101.60972222222,"count":1},{"name":"Mercedes","country":"Costa Rica","lat":10.0062029,"lon":-84.1330732,"count":1},{"name":"Puerto Lim\u00f3n","country":"Costa Rica","lat":10.03,"lon":-83.22,"count":1},{"name":"Puerta de Tierra","country":"Mexico","lat":19.0,"lon":-90.4,"count":1},{"name":"Placeres","country":"Mexico","lat":19.0,"lon":-90.4,"count":1},{"name":"Peralta","country":"Costa Rica","lat":9.9700079,"lon":-83.6180846,"count":1},{"name":"Paso del Bote","country":"Mexico","lat":18.697777777777777,"lon":-96.05722222222222,"count":1},{"name":"Alvarado","country":"Mexico","lat":18.77143,"lon":-95.76181,"count":1},{"name":"Ozumba","country":"Mexico","lat":19.039176944444446,"lon":-98.79538944444444,"count":1},{"name":"Ocotl\u00e1n","country":"Mexico","lat":16.79222222222222,"lon":-96.675,"count":1},{"name":"Naucalpan","country":"Mexico","lat":19.47857,"lon":-99.23367,"count":1},{"name":"Muna","country":"Mexico","lat":20.48472222222222,"lon":-89.71305555555556,"count":1},{"name":"Zihuatanejo","country":"Mexico","lat":17.64344,"lon":-101.55212,"count":1}];
+const UNCERTAIN = [{"name":"Veracruz (central)","country":"Mexico","lat":19.190277777778,"lon":-96.153333333333,"count":78},{"name":"Buenos Aires region","country":"Costa Rica","lat":9.1666,"lon":-83.3333,"count":57},{"name":"Tierra Blanca region","country":"Mexico","lat":21.101111111111,"lon":-100.15777777778,"count":23},{"name":"Barranca","country":"Mexico","lat":20.5,"lon":-104.5,"count":21},{"name":"Remojadas region","country":"Mexico","lat":18.98333333,"lon":-96.31666667,"count":21},{"name":"Mezcala region","country":"Mexico","lat":17.9333,"lon":-99.6,"count":9},{"name":"Nebaj region","country":"Guatemala","lat":15.40833333,"lon":-91.14722222,"count":8},{"name":"Etzatl\u00e1n region","country":"Mexico","lat":20.5833,"lon":-103.75,"count":6},{"name":"Jaina region","country":"Mexico","lat":20.2086,"lon":-90.4842,"count":6},{"name":"Barranca region","country":"Mexico","lat":20.5,"lon":-104.5,"count":5},{"name":"Orizaba region","country":"Mexico","lat":18.85,"lon":-97.1,"count":5},{"name":"Samb\u00fa River","country":"Panama","lat":8.076808,"lon":-78.302333,"count":3},{"name":"Puuc region","country":"Mexico","lat":20.2,"lon":-89.7,"count":3},{"name":"Palenque area","country":"Mexico","lat":17.5158,"lon":-92.0469,"count":3},{"name":"Acatl\u00e1n de P\u00e9rez Figueroa region","country":"Mexico","lat":18.538563333333332,"lon":-96.60761,"count":3},{"name":"[near] Palenque","country":"Mexico","lat":17.5158,"lon":-92.0469,"count":3},{"name":"[near] Veracruz","country":"Mexico","lat":19.1903,"lon":-96.1533,"count":2},{"name":"[near] Jomulco","country":"Mexico","lat":21.10281527777778,"lon":-104.42524416666667,"count":2},{"name":"[near] Chalco","country":"Mexico","lat":19.26666667,"lon":-98.9,"count":2},{"name":"Chama region","country":"Guatemala","lat":15.74166,"lon":-90.366282,"count":2},{"name":"Chenes region","country":"Mexico","lat":19.6,"lon":-89.8,"count":2},{"name":"Mezcala River","country":"Mexico","lat":17.9333,"lon":-99.6,"count":2},{"name":"Oaxaca region","country":"Mexico","lat":17.0655,"lon":-96.6539,"count":2},{"name":"[near] Tepic","country":"Mexico","lat":21.5,"lon":-104.9,"count":1},{"name":"[near] Iguala de la Independencia","country":"Mexico","lat":18.345,"lon":-99.53833333333333,"count":1},{"name":"[near] Teapa","country":"Mexico","lat":17.5447,"lon":-92.9556,"count":1},{"name":"[near] Filadelfia","country":"Costa Rica","lat":10.4189826,"lon":-85.4714091,"count":1},{"name":"[near] Xalapa","country":"Mexico","lat":19.5438,"lon":-96.9102,"count":1},{"name":"[near] Puebla","country":"Mexico","lat":19.0414,"lon":-98.2063,"count":1},{"name":"[near] Chichen Itza","country":"Mexico","lat":20.683055555556,"lon":-88.568611111111,"count":1},{"name":"[near] M\u00e9rida","country":"Mexico","lat":20.9667,"lon":-89.6233,"count":1},{"name":"[near] Orizaba","country":"Mexico","lat":18.85,"lon":-97.1,"count":1},{"name":"Puebla area","country":"Mexico","lat":19.0414,"lon":-98.2063,"count":1},{"name":"Tepic region","country":"Mexico","lat":21.5,"lon":-104.9,"count":1},{"name":"Teotihuacan region","country":"Mexico","lat":19.6925,"lon":-98.843888888889,"count":1},{"name":"Son\u00e1 District region","country":"Panama","lat":8.0166666666667,"lon":-81.316666666667,"count":1},{"name":"Son\u00e1 District area","country":"Panama","lat":8.0166666666667,"lon":-81.316666666667,"count":1},{"name":"P\u00e1nuco area","country":"Mexico","lat":22.05,"lon":-98.183333333333,"count":1},{"name":"Autl\u00e1n region","country":"Mexico","lat":19.77138888888889,"lon":-104.36527777777778,"count":1},{"name":"Old Line region","country":"Costa Rica","lat":10.0,"lon":-84.0,"count":1},{"name":"Mezcala River region","country":"Mexico","lat":17.9333,"lon":-99.6,"count":1},{"name":"Lake P\u00e1tzcuaro","country":"Mexico","lat":19.615,"lon":-101.65,"count":1},{"name":"Lake Chapala","country":"Mexico","lat":20.333333333333,"lon":-103.0,"count":1},{"name":"Ixtl\u00e1n del R\u00edo region","country":"Mexico","lat":21.03972222,"lon":-104.34472222,"count":1},{"name":"Gu\u00e1piles region","country":"Costa Rica","lat":10.214102,"lon":-83.7918094,"count":1},{"name":"Dicha Tuerta region","country":"Mexico","lat":18.85,"lon":-97.1,"count":1},{"name":"Darien region","country":"Colombia","lat":7.9,"lon":-77.1,"count":1},{"name":"Chapala region","country":"Mexico","lat":20.298055555555557,"lon":-103.19027777777778,"count":1},{"name":"[possibly] Corta Flor","country":"Mexico","lat":17.9,"lon":-101.7,"count":1}];
+
+const colorScale = d3.scaleSequential()
+  .domain([0, 100])
+  .interpolator(t => d3.interpolateRgb("#b8ddd0", "#004d40")(t));
+
+const canvas = document.getElementById('grad-canvas');
+const ctx = canvas.getContext('2d');
+const grad = ctx.createLinearGradient(0, 0, 200, 0);
+for (let i = 0; i <= 20; i++) grad.addColorStop(i/20, colorScale(i*5));
+ctx.fillStyle = grad; ctx.fillRect(0, 0, 200, 12);
+
+const maxDot = d3.max(LOCALE,    d => d.count);
+const rDot   = d3.scaleSqrt().domain([1, maxDot]).range([4, 18]);
+const rHaze  = d3.scaleSqrt().domain([1, d3.max(UNCERTAIN, d => d.count)]).range([7, 22]);
+
+const dotEl = document.getElementById('dot-sizes');
+[10, 100, 500].forEach(v => {
+  const r = rDot(v);
+  const item = document.createElement('div'); item.className = 'size-item';
+  const circ = document.createElement('div'); circ.className = 'size-circ';
+  circ.style.cssText = `width:${r*2}px;height:${r*2}px;background:#b71c1c;border:0.8px solid #ede8de;`;
+  const lbl = document.createElement('div'); lbl.className = 'size-lbl-red';
+  lbl.textContent = v;
+  item.appendChild(circ); item.appendChild(lbl); dotEl.appendChild(item);
+});
+
+const uncEl = document.getElementById('uncertain-sizes');
+[10, 50, 100].forEach(v => {
+  const r = rHaze(v);
+  const item = document.createElement('div'); item.className = 'size-item';
+  const circ = document.createElement('div'); circ.className = 'size-circ';
+  circ.style.cssText = `width:${r*2}px;height:${r*2}px;background:#f472b6;opacity:0.6;border-radius:50%;`;
+  const lbl = document.createElement('div'); lbl.className = 'size-lbl-pink';
+  lbl.textContent = v;
+  item.appendChild(circ); item.appendChild(lbl); uncEl.appendChild(item);
+});
+
+const tt  = document.getElementById('tt');
+const mw  = document.getElementById('map-wrap');
+
+function displayName(n) { return n.split('[').join('').split(']').join('').trim(); }
+
+function showTT(event, html) {
+  tt.innerHTML = html;
+  const rect = mw.getBoundingClientRect();
+  let x = event.clientX - rect.left + 14;
+  let y = event.clientY - rect.top  - 10;
+  if (x + 240 > rect.width) x -= 252;
+  if (y < 0) y = 4;
+  tt.style.left = x+'px'; tt.style.top = y+'px'; tt.classList.add('on');
+}
+function hideTT() { tt.classList.remove('on'); }
+
+const W = 960, H = 660;
+const svg = d3.select('#map');
+const projection = d3.geoMercator().center([-88, 8]).scale(1350).translate([W/2, H/2]);
+const path = d3.geoPath().projection(projection);
+
+// Background ocean — pointer-events none so dots remain hoverable
+svg.append('rect').attr('width',W).attr('height',H).attr('fill','#a8c4d8').attr('pointer-events','none');
+const g = svg.append('g');
+
+const zoom = d3.zoom().scaleExtent([0.5,14]).on('zoom', ({transform}) => g.attr('transform', transform));
+svg.call(zoom).style('cursor','move');
+
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(world => {
+  const countries = topojson.feature(world, world.objects.countries);
+  const borders   = topojson.mesh(world, world.objects.countries, (a,b) => a !== b);
+  const focus     = countries.features.filter(d => ABSENCE[String(d.id).padStart(3,'0')]);
+
+  g.selectAll('.land').data(countries.features).join('path').attr('class','land').attr('d', path);
+
+  g.selectAll('.land-focus').data(focus).join('path')
+    .attr('class','land-focus').attr('d', path)
+    .attr('fill', d => colorScale(ABSENCE[String(d.id).padStart(3,'0')].pct))
+    .on('mousemove', (e,d) => {
+      const a = ABSENCE[String(d.id).padStart(3,'0')];
+      showTT(e, `<div class="tt-name">${a.name}</div>
+        <span class="tt-dim">records total &nbsp;</span>${a.total.toLocaleString()}<br>
+        <span class="tt-dim">locale absent &nbsp;</span>${a.missing.toLocaleString()} (${a.pct}%)<br>
+        <span class="tt-dim">locale known &nbsp;&nbsp;</span>${(a.total-a.missing).toLocaleString()} (${(100-a.pct).toFixed(1)}%)`);
+    }).on('mouseleave', hideTT);
+
+  g.append('path').datum(borders).attr('class','border').attr('d', path);
+
+  const seen = new Set();
+  const pts = LOCALE.filter(d => {
+    const k = `${d.lat.toFixed(4)},${d.lon.toFixed(4)}`;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+
+  const uncertainG = g.append('g').attr('opacity', 0.85);
+  uncertainG.selectAll('.uncertain-dot').data(UNCERTAIN).join('circle')
+    .attr('class','uncertain-dot')
+    .attr('cx', d => projection([d.lon, d.lat])[0])
+    .attr('cy', d => projection([d.lon, d.lat])[1])
+    .attr('r',  d => rHaze(d.count))
+    .attr('fill', '#f472b6').attr('fill-opacity', 1).attr('stroke', 'none')
+    .on('mousemove', (e,d) => showTT(e, `<div class="tt-name">${displayName(d.name)}</div>
+      <span class="tt-dim">approx. records &nbsp;</span>${d.count.toLocaleString()}<br>
+      <span class="tt-dim">country &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>${d.country}<br>
+      <span class="tt-dim">attribution &nbsp;&nbsp;&nbsp;&nbsp;</span><em>approximate</em>`))
+    .on('mouseleave', hideTT);
+
+  g.selectAll('.locale-dot').data(pts).join('circle')
+    .attr('class','locale-dot')
+    .attr('cx', d => projection([d.lon, d.lat])[0])
+    .attr('cy', d => projection([d.lon, d.lat])[1])
+    .attr('r',  d => rDot(d.count))
+    .on('mousemove', (e,d) => showTT(e, `<div class="tt-name">${d.name}</div>
+      <span class="tt-dim">locale records &nbsp;</span>${d.count.toLocaleString()}<br>
+      <span class="tt-dim">country &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>${d.country}`))
+    .on('mouseleave', hideTT);
+
+}).catch(() => {
+  g.append('text').attr('x',W/2).attr('y',H/2)
+    .attr('text-anchor','middle').style('font-size','14px').style('fill','#7a6a58')
+    .text('Map requires internet connection.');
+});
+</script>
+</body>
+</html>
