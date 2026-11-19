@@ -7,7 +7,7 @@ This repository contains interactive data visualisations developed during my rol
 
 The Stendahl Art Galleries records document the activities of one of the most influential dealers in the twentieth-century market for pre-Hispanic art.
 
-Since 2019, the Getty Research Institute's **Pre-Hispanic Art Provenance Initiative (PHAPI)** has investigated the international art market's commodification of pre-Hispanic art and antiquities during the nineteenth and twentieth centuries. The initiative examines the looting, commodification, collecting, and circulation of pre-Hispanic material culture, and has undertaken the digitisation, transcription, and analysis of key archival materials, including the Stendahl Inventory Books and Family Correspondence.
+Since 2019, the Getty Research Institute's **Pre-Hispanic Art Provenance Initiative (PHAPI)** has investigated the international art market's commodification of pre-Hispanic art and antiquities during the twentieth century. The initiative examines the looting, commodification, collecting, and circulation of pre-Hispanic material culture, and has undertaken the digitisation, transcription, and analysis of key archival materials, including the Stendahl Inventory Books and Family Correspondence.
 
 The project is particularly interested in:
 
