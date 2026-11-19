@@ -41,7 +41,11 @@ The visualisation uses the correspondence as a point of departure for examining 
 
 **[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Family%20Correspondence_Place%20of%20Origin_Map.html)**
 
+### SAG_Inventory Books_Object Types
 
+An interactive visualisation of object types recorded in the Stendahl Art Galleries Inventory Books, illustrating the range and distribution of objects documented across the gallery's inventory records.
+
+**[View the visualisation](https://raw.githack.com/kagking/Stendahl-Art-Galleries-Records_Data-Visualisations/main/SAG_Inventory%20Books_Object%20Types.html)**
 
 ## Research Approach
 
