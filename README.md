@@ -31,7 +31,7 @@ This repository builds on the archival resources made available through the init
 
 An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented locations alongside lacunae and ambiguity in the surviving archival evidence.
 
-**[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Family%20Correspondence_Place%20of%20Origin_Map.html)**
+**[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Inventory%20Books_Locations_Map.html)**
 
 ### SAG_Family Correspondence_Place of Origin_Map
 
