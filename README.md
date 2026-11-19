@@ -19,8 +19,7 @@ The project is particularly interested in:
 
 This repository builds on the archival resources made available through the initiative, using data visualisation and exploratory digital methods to investigate the geographical, documentary, and commercial networks represented in the Stendahl Art Galleries records.
 
-**Institutional project:**  
-[Pre-Hispanic Art Provenance Initiative — Getty Research Institute](https://www.getty.edu/projects/pre-hispanic-art-provenance-initiative/)
+**Institutional project:** [Pre-Hispanic Art Provenance Initiative — Getty Research Institute](https://www.getty.edu/projects/pre-hispanic-art-provenance-initiative/)
 
 **Archival transcription resource:**  
 [Stendahl Art Galleries Archival Transcription Project — FromThePage](https://fromthepage.com/gri/stendahl-art-galleries-archival-transcription-project)
