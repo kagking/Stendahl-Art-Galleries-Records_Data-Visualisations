@@ -31,7 +31,7 @@ This repository builds on the archival resources made available through the init
 
 An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented locations alongside lacunae and ambiguity in the surviving archival evidence.
 
-**[View the visualisation](Stendahl%20%E2%80%94%20Known%20Sites%20%26%20Absent%20Records.html)**
+**[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Family%20Correspondence_Place%20of%20Origin_Map.html)**
 
 ### SAG_Family Correspondence_Place of Origin_Map
 
@@ -39,7 +39,7 @@ An interactive visualisation exploring the geographical place of origin for Fami
 
 The visualisation uses the correspondence as a point of departure for examining the geographical reach of Earl Stendahl's personal and professional networks.
 
-**[View the visualisation](letters_pie_map.html)**
+**[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Family%20Correspondence_Place%20of%20Origin_Map.html)**
 
 
 
