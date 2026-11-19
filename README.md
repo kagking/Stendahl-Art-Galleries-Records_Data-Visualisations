@@ -21,27 +21,21 @@ This repository builds on the archival resources made available through the init
 
 **Institutional project:** [Pre-Hispanic Art Provenance Initiative — Getty Research Institute](https://www.getty.edu/projects/pre-hispanic-art-provenance-initiative/)
 
-**Archival transcription resource:**  
-[Stendahl Art Galleries Archival Transcription Project — FromThePage](https://fromthepage.com/gri/stendahl-art-galleries-archival-transcription-project)
+**Archival transcription resource:** [Stendahl Art Galleries Archival Transcription Project — FromThePage](https://fromthepage.com/gri/stendahl-art-galleries-archival-transcription-project)
 
 ## Visualisations
 
 ### SAG_Inventory Books_Locations_Map
-
 An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented locations alongside lacunae and ambiguity in the surviving archival evidence.
 
 **[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Inventory%20Books_Locations_Map.html)**
 
 ### SAG_Family Correspondence_Place of Origin_Map
-
-An interactive visualisation exploring the geographical place of origin for Family Correspondence preserved in the archive (concentrated between the mid-1950s and mid-1960s).
-
-The visualisation uses the correspondence as a point of departure for examining the geographical reach of Earl Stendahl's personal and professional networks.
+An interactive visualisation exploring the geographical place of origin for Family Correspondence preserved in the archive (concentrated between the mid-1950s and mid-1960s). The visualisation uses the correspondence as a point of departure for examining the geographical reach of Earl Stendahl's personal and professional networks.
 
 **[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Family%20Correspondence_Place%20of%20Origin_Map.html)**
 
 ### SAG_Inventory Books_Object Types
-
 An interactive visualisation of object types recorded in the Stendahl Art Galleries Inventory Books, illustrating the range and distribution of objects documented across the gallery's inventory records.
 
 **[View the visualisation](https://raw.githack.com/kagking/Stendahl-Art-Galleries-Records_Data-Visualisations/main/SAG_Inventory%20Books_Object%20Types.html)**
@@ -58,16 +52,13 @@ The visualisations draw on research relating to the **Stendahl Art Galleries Rec
 
 
 **Institutional project:**
-
 Getty Research Institute. *Pre-Hispanic Art Provenance Initiative*. J. Paul Getty Trust, 2019–ongoing.  
 https://www.getty.edu/projects/pre-hispanic-art-provenance-initiative/
 
 **Archival transcription resource:**
-
 King, Kylie G., Alicia Maria Houtrouw, and Payton Phillips Quintanilla, eds., "Pre-Hispanic Art Provenance: Transcribing Stendahl Art Galleries Records." <i>FromThePage</i>. Getty Research Institute, Los Angeles (2017.M.38), 2026. https://fromthepage.com/gri.
 
 **Archive:**
-
 Stendahl Art Galleries Records, 2017.M.38. Getty Research Institute, Los Angeles. Gift of Ron and April Dammann.
 
 ## About
