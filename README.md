@@ -33,7 +33,7 @@ An exploratory visualisation examining the geographical dimension of the Stendah
 
 **[View the visualisation](Stendahl%20%E2%80%94%20Known%20Sites%20%26%20Absent%20Records.html)**
 
-### Stendahl Family Correspondence — Geographic Visualisation
+### /SAG_Family Correspondence_Place of Origin_Map.html
 
 An interactive visualisation exploring the geographical place of origin for Family Correspondence preserved in the archive (concentrated between the mid-1950s and mid-1960s).
 
