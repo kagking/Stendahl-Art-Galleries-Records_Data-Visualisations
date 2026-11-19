@@ -26,7 +26,7 @@ This repository builds on the archival resources made available through the init
 ## Visualisations
 
 ### SAG_Inventory Books_Locations_Map
-An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented locations alongside lacunae and ambiguity in the surviving archival evidence.
+An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented source locations of pre-Hispanic object alongside lacunae and ambiguity in the surviving archival evidence.
 
 **[View the visualisation](https://kagking.github.io/Stendahl-Art-Galleries-Records_Data-Visualisations/SAG_Inventory%20Books_Locations_Map.html)**
 
