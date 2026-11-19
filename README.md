@@ -27,13 +27,13 @@ This repository builds on the archival resources made available through the init
 
 ## Visualisations
 
-### SAG_Inventory Books_Locations
+### SAG_Inventory Books_Locations_Map
 
 An exploratory visualisation examining the geographical dimension of the Stendahl Art Galleries records, considering documented locations alongside lacunae and ambiguity in the surviving archival evidence.
 
 **[View the visualisation](Stendahl%20%E2%80%94%20Known%20Sites%20%26%20Absent%20Records.html)**
 
-### /SAG_Family Correspondence_Place of Origin_Map.html
+### SAG_Family Correspondence_Place of Origin_Map
 
 An interactive visualisation exploring the geographical place of origin for Family Correspondence preserved in the archive (concentrated between the mid-1950s and mid-1960s).
 
